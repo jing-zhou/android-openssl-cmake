@@ -3,12 +3,10 @@ set -u
 set -e
 
 export BUILD_ARCHS=${BUILD_ARCHS:-arm_32 arm_64}
-export OPENSSL_BRANCH=OpenSSL_1_1_1-stable
-export OPENSSL_ANDROID_API=21
+export OPENSSL_BRANCH=openssl-3.4
+export OPENSSL_ANDROID_API=28
 
-NDK=${1:-$NDK}
-
-export ANDROID_NDK_HOME=$NDK
+export ANDROID_NDK_HOME=${ANDROID_NDK_ROOT}
 
 export BASE=$(realpath ${BASE:-$(pwd)})
 
@@ -23,12 +21,12 @@ mkdir -p $PREFIX
 
 cd $BASE
 if [ ! -d openssl ]; then
-    git clone --depth 1 git://git.openssl.org/openssl.git --branch $OPENSSL_BRANCH
+    git clone --depth 1 git@github.com:jing-zhou/openssl.git --branch $OPENSSL_BRANCH
 fi
 cd openssl
 echo "Building OpenSSL in $(realpath $PWD), deploying to $PREFIX"
 
-export PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 if [[ "$BUILD_ARCHS" = *"arm_32"* ]]; then
     ./Configure shared android-arm -D__ANDROID_API__=$OPENSSL_ANDROID_API --prefix=$PREFIX/armeabi-v7a
